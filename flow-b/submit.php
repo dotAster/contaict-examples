@@ -1,0 +1,46 @@
+<?php
+define('CONTAICT_SECRET_KEY', 'sk_xxxxxxxxxxxx');
+define('MAIL_TO', 'admin@example.com');
+define('SPAM_THRESHOLD', 70);
+
+$name  = trim($_POST['name']  ?? '');
+$email = trim($_POST['email'] ?? '');
+$body  = trim($_POST['body']  ?? '');
+
+if (!$name || !$email || !$body) {
+    http_response_code(400);
+    exit('入力内容をご確認ください。');
+}
+
+// スパム判定
+$ch = curl_init('https://api.contaict.app/v1/analyze');
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST           => true,
+    CURLOPT_POSTFIELDS     => json_encode(['text' => $body]),
+    CURLOPT_HTTPHEADER     => [
+        'Content-Type: application/json',
+        'Authorization: Bearer ' . CONTAICT_SECRET_KEY,
+    ],
+    CURLOPT_TIMEOUT        => 15,
+]);
+$result = json_decode(curl_exec($ch), true);
+curl_close($ch);
+
+if (!isset($result['score'])) {
+    // API エラー時は素通し（フォールバック）
+    // ブロックしたい場合は exit('送信できませんでした。') に変更
+    $result = ['score' => 0];
+}
+
+if ($result['score'] >= SPAM_THRESHOLD) {
+    http_response_code(400);
+    exit('送信できませんでした。');
+}
+
+// 通常処理
+$subject = "【お問い合わせ】{$name} 様より";
+$message = "名前: {$name}\nメール: {$email}\n\n{$body}";
+mail(MAIL_TO, $subject, $message, "From: {$email}");
+
+echo 'お問い合わせを受け付けました。';

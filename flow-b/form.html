@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>お問い合わせ</title>
+</head>
+<body>
+
+<form action="submit.php" method="post">
+  <p>
+    <label>お名前<br>
+    <input type="text" name="name" required></label>
+  </p>
+  <p>
+    <label>メールアドレス<br>
+    <input type="email" name="email" required></label>
+  </p>
+  <p>
+    <label>お問い合わせ内容<br>
+    <textarea name="body" rows="6" required></textarea></label>
+  </p>
+  <p>
+    <button type="submit">送信する</button>
+  </p>
+</form>
+
+</body>
+</html>

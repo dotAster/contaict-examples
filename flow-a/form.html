@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>お問い合わせ</title>
+</head>
+<body>
+
+<form id="contactForm" action="submit.php" method="post">
+  <input type="hidden" name="contaict_token" id="contaict_token">
+
+  <p>
+    <label>お名前<br>
+    <input type="text" name="name" required></label>
+  </p>
+  <p>
+    <label>メールアドレス<br>
+    <input type="email" name="email" required></label>
+  </p>
+  <p>
+    <label>お問い合わせ内容<br>
+    <textarea id="body" name="body" rows="6" required></textarea></label>
+  </p>
+  <p>
+    <button type="submit" id="submitBtn">送信する</button>
+  </p>
+</form>
+
+<script>
+document.getElementById('contactForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const btn  = document.getElementById('submitBtn');
+  const text = document.getElementById('body').value;
+
+  btn.disabled = true;
+  btn.textContent = '送信中...';
+
+  try {
+    const res = await fetch('https://api.contaict.app/v1/token?api_key=YOUR_SITE_KEY', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ text }),
+    });
+
+    if (!res.ok) {
+      alert('送信できませんでした。しばらく時間をおいて再度お試しください。');
+      return;
+    }
+
+    const { token } = await res.json();
+    document.getElementById('contaict_token').value = token;
+    e.target.submit();
+
+  } catch {
+    alert('通信エラーが発生しました。しばらく時間をおいて再度お試しください。');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '送信する';
+  }
+});
+</script>
+
+</body>
+</html>
