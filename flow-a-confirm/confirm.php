@@ -23,14 +23,34 @@ curl_setopt_array($ch, [
     CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
     CURLOPT_TIMEOUT        => 15,
 ]);
-$result = json_decode(curl_exec($ch), true);
+$raw      = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$curlErr  = curl_errno($ch);
 curl_close($ch);
 
-// トークン無効・期限切れ（10分超過）
-if (!isset($result['score'])) {
-    http_response_code(400);
-    exit('セッションが無効です。もう一度フォームを入力してください。');
+if ($curlErr || $httpCode === 0) {
+    http_response_code(503);
+    exit('一時的にご利用できません。しばらく時間をおいて再度お試しください。');
 }
+
+switch ($httpCode) {
+    case 200:
+        break;
+    case 404:
+        http_response_code(400);
+        exit('不正なアクセスです。');
+    case 410:
+        http_response_code(400);
+        exit('セッションが切れました。もう一度フォームを入力してください。');
+    case 429:
+        http_response_code(429);
+        exit('しばらく時間をおいて再度お試しください。');
+    default:
+        http_response_code(503);
+        exit('一時的にご利用できません。しばらく時間をおいて再度お試しください。');
+}
+
+$result = json_decode($raw, true);
 
 if ($result['score'] >= SPAM_THRESHOLD) {
     http_response_code(400);

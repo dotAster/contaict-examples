@@ -24,16 +24,32 @@ curl_setopt_array($ch, [
     ],
     CURLOPT_TIMEOUT        => 15,
 ]);
-$result = json_decode(curl_exec($ch), true);
+$raw      = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$curlErr  = curl_errno($ch);
 curl_close($ch);
 
-if (!isset($result['score'])) {
-    // API エラー時は素通し（フォールバック）
-    // ブロックしたい場合は exit('送信できませんでした。') に変更
-    $result = ['score' => 0];
+$score = 0;
+
+if (!$curlErr && $httpCode === 200) {
+    $score = (int)(json_decode($raw, true)['score'] ?? 0);
+} elseif ($httpCode === 429) {
+    // rate_limit_exceeded または quota_exceeded
+    // 月次上限超過時にブロックしたい場合:
+    //   http_response_code(503); exit('一時的にご利用できません。しばらく時間をおいて再度お試しください。');
+    $score = 0;
+} elseif ($httpCode === 401 || $httpCode === 403) {
+    // APIキー設定ミスまたはIP制限 → サーバーログで確認を
+    error_log("[ContAIct] 認証エラー: HTTP {$httpCode}");
+    $score = 0;
+} else {
+    // 通信エラー・タイムアウト・その他 → 素通し（フォールバック）
+    // ブロックしたい場合:
+    //   http_response_code(503); exit('一時的にご利用できません。しばらく時間をおいて再度お試しください。');
+    $score = 0;
 }
 
-if ($result['score'] >= SPAM_THRESHOLD) {
+if ($score >= SPAM_THRESHOLD) {
     http_response_code(400);
     exit('送信できませんでした。');
 }

@@ -41,6 +41,10 @@ document.getElementById('contactForm').addEventListener('submit', async (e) => {
       method: 'POST',
     });
 
+    if (res.status === 429) {
+      alert('送信が集中しています。しばらく時間をおいて再度お試しください。');
+      return;
+    }
     if (!res.ok) {
       alert('送信できませんでした。しばらく時間をおいて再度お試しください。');
       return;
