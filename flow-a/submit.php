@@ -18,14 +18,14 @@ $ch = curl_init('https://api.contaict.app/v1/analyze');
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_POST           => true,
-    CURLOPT_POSTFIELDS     => json_encode(['token' => $token]),
+    CURLOPT_POSTFIELDS     => json_encode(['token' => $token, 'text' => $body]),
     CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
     CURLOPT_TIMEOUT        => 15,
 ]);
 $result = json_decode(curl_exec($ch), true);
 curl_close($ch);
 
-// トークン無効・期限切れ（10分超過）・解析済み
+// トークン無効・期限切れ（10分超過）
 if (!isset($result['score'])) {
     http_response_code(400);
     exit('セッションが無効です。もう一度フォームを入力してください。');

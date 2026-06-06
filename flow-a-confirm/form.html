@@ -38,9 +38,7 @@ document.getElementById('contactForm').addEventListener('submit', async (e) => {
 
   try {
     const res = await fetch('https://api.contaict.app/v1/token?api_key=YOUR_SITE_KEY', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ text }),
+      method: 'POST',
     });
 
     if (!res.ok) {
