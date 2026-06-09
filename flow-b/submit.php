@@ -13,11 +13,12 @@ if (!$name || !$email || !$body) {
 }
 
 // スパム判定
+$clientIp = $_SERVER['REMOTE_ADDR'] ?? '';
 $ch = curl_init('https://api.contaict.app/v1/analyze');
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_POST           => true,
-    CURLOPT_POSTFIELDS     => json_encode(['text' => $body]),
+    CURLOPT_POSTFIELDS     => json_encode(['text' => $body, 'client_ip' => $clientIp]),
     CURLOPT_HTTPHEADER     => [
         'Content-Type: application/json',
         'Authorization: Bearer ' . CONTAICT_SECRET_KEY,
