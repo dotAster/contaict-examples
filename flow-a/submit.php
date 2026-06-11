@@ -42,6 +42,11 @@ switch ($httpCode) {
         http_response_code(400);
         exit('セッションが切れました。もう一度フォームを入力してください。');
     case 429:
+        $err = json_decode($raw, true)['error'] ?? '';
+        if ($err === 'rescan_limit_exceeded') {
+            http_response_code(400);
+            exit('お手数ですが、ページを更新してもう一度送信してください。');
+        }
         http_response_code(429);
         exit('しばらく時間をおいて再度お試しください。');
     default:

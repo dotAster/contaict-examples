@@ -27,35 +27,40 @@
 </form>
 
 <script>
+let contaictToken = null;
+let tokenExpiresAt = 0;
+
+async function refreshToken() {
+  const res = await fetch('https://api.contaict.app/v1/token?api_key=YOUR_SITE_KEY', {
+    method: 'POST',
+  });
+  if (res.status === 429) throw new Error('rate_limited');
+  if (!res.ok) throw new Error('token_error');
+  const { token, expires_at } = await res.json();
+  contaictToken = token;
+  tokenExpiresAt = Date.parse(expires_at);
+}
+
 document.getElementById('contactForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const btn  = document.getElementById('submitBtn');
-  const text = document.getElementById('body').value;
-
+  const btn = document.getElementById('submitBtn');
   btn.disabled = true;
   btn.textContent = '送信中...';
 
   try {
-    const res = await fetch('https://api.contaict.app/v1/token?api_key=YOUR_SITE_KEY', {
-      method: 'POST',
-    });
-
-    if (res.status === 429) {
-      alert('送信が集中しています。しばらく時間をおいて再度お試しください。');
-      return;
+    if (!contaictToken || Date.now() > tokenExpiresAt - 30000) {
+      await refreshToken();
     }
-    if (!res.ok) {
-      alert('送信できませんでした。しばらく時間をおいて再度お試しください。');
-      return;
-    }
-
-    const { token } = await res.json();
-    document.getElementById('contaict_token').value = token;
+    document.getElementById('contaict_token').value = contaictToken;
     e.target.submit();
 
-  } catch {
-    alert('通信エラーが発生しました。しばらく時間をおいて再度お試しください。');
+  } catch (err) {
+    if (err.message === 'rate_limited') {
+      alert('送信が集中しています。しばらく時間をおいて再度お試しください。');
+    } else {
+      alert('送信できませんでした。しばらく時間をおいて再度お試しください。');
+    }
   } finally {
     btn.disabled = false;
     btn.textContent = '送信する';
