@@ -1,8 +1,6 @@
 <?php
 session_start();
 
-define('SPAM_THRESHOLD', 70);
-
 $token = $_POST['contaict_token'] ?? '';
 $name  = trim($_POST['name']  ?? '');
 $email = trim($_POST['email'] ?? '');
@@ -57,12 +55,7 @@ switch ($httpCode) {
 
 $result = json_decode($raw, true);
 
-if ($result['score'] >= SPAM_THRESHOLD) {
-    http_response_code(400);
-    exit('送信できませんでした。');
-}
-
-// スコアをセッションに保存（完了処理で再スキャンしないため）
+// スコアをセッションに保存（submit.php でラベル付けに使用）
 $_SESSION['contaict_score']   = $result['score'];
 $_SESSION['contaict_checked'] = true;
 $_SESSION['form_name']        = $name;
