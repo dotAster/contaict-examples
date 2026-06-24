@@ -55,15 +55,22 @@ switch ($httpCode) {
 }
 
 $result = json_decode($raw, true);
+$score  = $result['score'];
 
-if ($result['score'] >= SPAM_THRESHOLD) {
-    http_response_code(400);
-    exit('送信できませんでした。');
-}
-
-// 通常処理
-$subject = "【お問い合わせ】{$name} 様より";
-$message = "名前: {$name}\nメール: {$email}\n\n{$body}";
+// スコアに応じて件名にラベルを付けて全件送信（推奨）
+// ブロックする場合は「ブロックする場合」のコードに差し替える
+$label   = $score >= SPAM_THRESHOLD ? '[要確認] ' : '';
+$subject = $label . "【お問い合わせ】{$name} 様より";
+$message = "名前: {$name}\nメール: {$email}\n\n{$body}\n\n---\nスパムスコア: {$score}/100";
 mail(MAIL_TO, $subject, $message, "From: {$email}");
+
+// ブロックする場合:
+// if ($score >= SPAM_THRESHOLD) {
+//     http_response_code(400);
+//     exit('送信できませんでした。');
+// }
+// $subject = "【お問い合わせ】{$name} 様より";
+// $message = "名前: {$name}\nメール: {$email}\n\n{$body}";
+// mail(MAIL_TO, $subject, $message, "From: {$email}");
 
 echo 'お問い合わせを受け付けました。';
