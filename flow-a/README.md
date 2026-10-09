@@ -1,6 +1,6 @@
 # フロー A — ブラウザ JS フロー
 
-ブラウザ JS がワンタイムトークンを取得し、サーバーサイドでスパム判定するフローです。
+ブラウザ JS がトークンを取得し、サーバーサイドでスパム判定するフローです。
 
 ## ファイル構成
 
@@ -12,19 +12,20 @@ flow-a/
 
 ## セットアップ
 
-1. `submit.php` の設定値を編集する
+1. `form.html` の `YOUR_SITE_KEY` をサイトキー（`cs_`）に書き換える
+2. `submit.php` の設定値を編集する
 
 ```php
-define('CONTAICT_SITE_KEY', 'cs_xxxxxxxxxxxx'); // サイトキー
 define('MAIL_TO', 'admin@example.com');
+define('SPAM_THRESHOLD', 70);
 ```
-
-2. `form.html` の `YOUR_SITE_KEY` を書き換える（または submit.php から動的に埋め込む）
 
 ## 動作の流れ
 
 1. ユーザーがフォームを送信
-2. JS が `/v1/token` にテキストを送りワンタイムトークンを取得
+2. JS が `/v1/token` からトークンを取得（有効期限10分。期限内は再取得しない）
 3. トークンをフォームに埋め込んでサーバーへ POST
-4. `submit.php` がトークンを `/v1/analyze` に送りスコアを取得
-5. スコアが 70 以上ならブロック、未満なら通常処理
+4. `submit.php` がトークンと本文を `/v1/analyze` に送りスコアを取得
+5. スコアが `SPAM_THRESHOLD` 以上なら件名に `[要確認]` を付け、全件メール送信
+   - ブロックしたい場合は `submit.php` 末尾のコメントのコードに差し替える
+   - トークンなしの POST（スクリプトによる直接送信）は判定前に拒否
