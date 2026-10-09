@@ -13,6 +13,7 @@ if (empty($_SESSION['contaict_checked'])) {
 $name  = $_SESSION['form_name']  ?? '';
 $email = $_SESSION['form_email'] ?? '';
 $body  = $_SESSION['form_body']  ?? '';
+$score = $_SESSION['contaict_score'] ?? 0;
 
 // セッションをクリア（二重送信防止）
 unset(
@@ -24,7 +25,6 @@ unset(
 );
 
 // スコアに応じて件名にラベルを付けて全件送信（推奨）
-$score   = $_SESSION['contaict_score'] ?? 0;
 $label   = $score >= SPAM_THRESHOLD ? '[要確認] ' : '';
 $subject = $label . "【お問い合わせ】{$name} 様より";
 $message = "名前: {$name}\nメール: {$email}\n\n{$body}\n\n---\nスパムスコア: {$score}/100";
