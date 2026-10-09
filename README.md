@@ -1,8 +1,29 @@
-# ContAIct Examples
+# contAIct Examples
 
-[ContAIct](https://contaict.app) API の組み込みサンプルです。
+[contAIct](https://contaict.app)（AI によるお問い合わせフォームのスパム判定 API）の組み込みサンプルです。
 
-## サンプル一覧
+## Features
+
+- ブラウザ JS フロー（サイトキー）とサーバー間の Bearer フロー（サーバーキー）の両方を収録
+- 確認画面のないフォームと、確認画面のあるフォームの2パターン
+- スパムを破棄せず、判定結果のラベルを付けて全件送信する既定動作
+- PHP と curl 拡張だけで動作（外部ライブラリ不要）
+
+## Requirements
+
+- contAIct アカウント（[登録はこちら](https://my.contaict.app/register)）
+- PHP 8.1 以上
+- curl 拡張
+
+## Installation
+
+```bash
+git clone https://github.com/dotAster/contaict-examples.git
+```
+
+使うフローのディレクトリを Web サーバーに置き、各ディレクトリの README に従って設定値を書き換えてください。
+
+## Usage
 
 | ディレクトリ | 説明 |
 |---|---|
@@ -10,20 +31,11 @@
 | [flow-a-confirm/](./flow-a-confirm/) | ブラウザ JS フロー・確認画面あり版 |
 | [flow-b/](./flow-b/) | Bearer フロー（サーバーキー + PHP） |
 
-## フローの選び方
-
-- **フロー A（推奨）**：ブラウザ JS がワンタイムトークンを取得し、サーバーサイドでスパム判定。スクリプトによる直接送信をブロックできます。
-- **フロー B**：サーバーサイドのみで完結。実装がシンプルです。
+- **フロー A（推奨）**：ブラウザ JS がトークンを取得し、サーバーサイドでスパム判定します。スクリプトによる直接送信をブロックできます。
+- **フロー B**：サーバーサイドのみで完結します。実装がシンプルです。
 
 詳しくは [使い方](https://contaict.app/usage) / [API 仕様](https://contaict.app/spec) をご覧ください。
 
-## 必要なもの
+## License
 
-- ContAIct アカウント（[登録はこちら](https://my.contaict.app/register)）
-- PHP 8.1 以上
-- curl 拡張
-
-## 利用条件
-
-著作権は株式会社ドットアスターが保持しますが、ご自由にお使いください。改変・再配布・商用利用も自由です。
-本サンプルの使用による如何なる損害についても、作者は一切の責任を負いません。
+LICENSE を参照
